@@ -16,10 +16,22 @@ bot = Client(
 )
 
 
+# -------------------------------
+# Web server (for Koyeb/Heroku)
+# -------------------------------
+async def web_server():
+    async def handle(request):
+        return web.Response(text="Bot is running fine!")
+
+    app = web.Application()
+    app.router.add_get("/", handle)
+    return app
+
+
 async def start_web():
-    app = web.AppRunner(await web_server())
-    await app.setup()
-    await web.TCPSite(app, "0.0.0.0", PORT).start()
+    runner = web.AppRunner(await web_server())
+    await runner.setup()
+    await web.TCPSite(runner, "0.0.0.0", PORT).start()
 
 
 if STRING:
@@ -34,6 +46,9 @@ else:
     bot.run()
 
 # Jishu Developer
+# Don't Remove Credit 🥺
+# Telegram Channel @Madflix_Bots
+# Developer @JishuDeveloper
 # Don't Remove Credit 🥺
 # Telegram Channel @Madflix_Bots
 # Developer @JishuDeveloper
