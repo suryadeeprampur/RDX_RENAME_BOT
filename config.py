@@ -2,13 +2,13 @@ import os
 
 
 BOT_TOKEN = os.environ.get("BOT_TOKEN", "")
-API_ID = int(os.environ.get("API_ID", ""))
-API_HASH = os.environ.get("API_HASH", "")
-OWNER = int(os.environ.get("OWNER", ""))
-BOT_USERNAME = os.environ.get('BOT_USERNAME', "")
+API_ID = int(os.environ.get("API_ID", "24196359"))
+API_HASH = os.environ.get("API_HASH", "20a1b32381ed174799e8af8def3e176b")
+OWNER = int(os.environ.get("OWNER", "8214110408"))
+BOT_USERNAME = os.environ.get('BOT_USERNAME', "RDX_RENAME_BOT")
 
 FORCE_SUBS = os.environ.get("FORCE_SUBS", "")
-LOG_CHANNEL = int(os.environ.get("LOG_CHANNEL", ""))
+LOG_CHANNEL = int(os.environ.get("LOG_CHANNEL", "-1003129258706"))
 
 DB_URL = os.environ.get("DB_URL", "mongodb+srv://MovieClub:MovieClub@cluster0.dau2bnj.mongodb.net/MovieClub?retryWrites=true&w=majority&appName=Cluster0")
 DB_NAME = os.environ.get("DB_NAME", "MovieClub")
