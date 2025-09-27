@@ -31,7 +31,9 @@ if STRING:
 else:
     bot.run()
 
-
+app = web.AppRunner(await web_server())
+        await app.setup()
+        await web.TCPSite(app, "0.0.0.0", PORT).start()
 
 # Jishu Developer 
 # Don't Remove Credit 🥺
