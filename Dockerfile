@@ -1,32 +1,30 @@
-# Use a slim Python image for faster builds
-FROM python:3.13-slim
+# Use a stable Python version (3.11) to avoid compilation errors
+FROM python:3.11-slim
 
-# Set working directory
 WORKDIR /app
 
-# Install system dependencies needed for some Python packages
+# Install system dependencies for building Python packages
 RUN apt-get update && apt-get install -y \
     build-essential \
     python3-dev \
     gcc \
-    git \
-    ffmpeg \
     libffi-dev \
     libssl-dev \
+    git \
+    ffmpeg \
     && rm -rf /var/lib/apt/lists/*
 
-# Upgrade pip
-RUN pip install --upgrade pip
+# Upgrade pip and install wheel for prebuilt wheels
+RUN pip install --upgrade pip wheel setuptools
 
-# Copy requirements.txt
+# Copy requirements
 COPY requirements.txt /app/
 
 # Install Python dependencies
-# Ensure compatible versions: python-telegram-bot==13.15 needs cachetools==4.2.2
-RUN pip install -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy all bot code
+# Copy bot files
 COPY . /app
 
-# Start the bot
+# Run the bot
 CMD ["python3", "bot.py"]
