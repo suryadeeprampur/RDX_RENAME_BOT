@@ -16,6 +16,8 @@ DB_NAME = os.environ.get("DB_NAME", "MovieClub")
 STRING = os.environ.get("STRING", "STRING")
 BOT_PIC = os.environ.get("BOT_PIC", "https://envs.sh/1y-.jpg")
 
+PORT = int(os.getenv("PORT", 8080))
+
 
 
 
