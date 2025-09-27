@@ -1,115 +1,56 @@
-class Txt(object):
-    # part of text configuration
-    START_TXT = """<b>
-Hello {} 👋 
+class script(object):
+    HELP_TXT = """<b>Hey</b> {}
+    
+<b>Here Is The Help For My Commands.</b>"""
 
-➻ This Is An Advanced And Yet Powerful Rename Bot.
+    CAPTION_TXT = """<b><u>📝  HOW TO SET CAPTION</u></b>
 
-➻ Using This Bot You Can Rename And Change Thumbnail Of Your Files.
+<b>⦿ /set_caption - Use This Command To Set Your Caption</b>
+<b>⦿ /see_caption - Use This Command To See Your Caption</b>
+<b>⦿ /del_caption - Use This Command To Delete Your Caption</b>"""
+   
+    THUMBNAIL_TXT = """<b><u>🖼️  HOW TO SET THUMBNAIL</u></b>
 
-➻ You Can Also Convert Video To File And File To Video.
+<b>⦿ You Can Add Custom Thumbnail Simply By Sending A Photo To Me....</b>
 
-➻ This Bot Also Supports Custom Thumbnail And Custom Caption.
+<b>⦿ /viewthumb - Use This Command To See Your Thumbnail</b>
+<b>⦿ /delthumb - Use This Command To Delete Your Thumbnail</b>"""
 
-Bot Is Made By : @RDX_PVT_LTD
-</b>"""
+    ABOUT_TXT = """<b>🤖 My Name :</b> <a href='https://t.me/FileRenameXProBot'>Rename Bot 4GB</a>
+<b>📝 Language :</b> <a href='https://python.org'>Python 3</a>
+<b>📚 Library :</b> <a href='https://pyrogram.org'>Pyrogram 2.0</a>
+<b>🚀 Server :</b> <a href='https://heroku.com'>Heroku</a>
+<b>📢 Channel :</b> <a href='https://t.me/Madflix_Bots'>Madflix Botz</a>
+<b>🧑‍💻 Developer :</b> <a href='https://t.me/CallAdminRobot'>Jishu Developer</a>
 
-    ABOUT_TXT = """<b>
-╭───────────────⍟
-├ 🤖 My Name : {}
-├ 🖥️ Developer : <a href="https://t.me/RDX_PVT_LTD">RDX_PVT_LTD</a> 
-├ 👨‍💻 Programer : <a href="https://t.me/RDX1444">RDX</a>
-├ 📕 Library : <a href="https://github.com/pyrogram">Pyrogram</a>
-├ ✏️ Language : <a href="https://www.python.org">Python 3</a>
-├ 💾 Database : <a href="https://cloud.mongodb.com">Mongo DB</a>
-├ 📊 Build Version : <a href="https://t.me/RDX1444">Rename v4.7.0</a>
-╰───────────────⍟
-</b>"""
-    HELP_TXT = """
-🌌 <b><u>How To Set Thumbnail</u></b>
-
-➪ /start - Start the bot and send any photo to automatically set as your thumbnail.
-➪ /view_thumb - View your current thumbnail.
-➪ /del_thumb - Delete your current thumbnail.
-
-📑 <b><u>How To Set Custom Caption</u></b>
-
-➪ /set_caption - Set a custom caption.
-➪ /see_caption - View your custom caption.
-➪ /del_caption - Delete your custom caption.
-➪ <b>Example:</b>
-<code>/set_caption 📕 Name ➠ : {filename}
-🔗 Size ➠ : {filesize} 
-⏰ Duration ➠ : {duration}</code>
-
-🎭 <b><u>How To Set Prefix and Suffix</u></b>
-
-➪ /set_prefix - Set your custom prefix.
-➪ /see_prefix - View your current prefix.
-➪ /del_prefix - Delete your prefix.
-➪ <b>Example:</b> <code>/set_prefix @RDX_PVT_LTD</code>
-
-➪ /set_suffix - Set your custom suffix.
-➪ /see_suffix - View your current suffix.
-➪ /del_suffix - Delete your suffix.
-➪ <b>Example:</b> <code>/set_suffix @RDX_PVT_LTD</code>
-
-📝 <b><u>How To Rename A File</u></b>
-
-➪ Send any file and type the new file name.
-➪ Then select the format: [ Document | Video | Audio ].
-
-🎛️ <b><u>Metadata Options</u></b>
-
-➪ /metadata - Change or set metadata for your files.
-
-🛰️ <b><u>Other Commands</u></b>
-
-➪ /ping - Check bot ping and responsiveness.
-➪ /donate - Support the developer to keep the bot alive ❤️
-
-🔧 <b><u>Need Help?</u></b>
-
-𝗔𝗻𝘆 𝗼𝘁𝗵𝗲𝗿 𝗾𝘂𝗲𝘀𝘁𝗶𝗼𝗻𝘀 𝗼𝗿 𝗵𝗲𝗹𝗽:
-<a href="https://t.me/RDX1444">Contact Developer</a>
-"""
-
-    PROGRESS_BAR = """\n
- <b>🔗 Size :</b> {1} | {2}
-️ <b>⏳️ Done :</b> {0}%
- <b>🚀 Speed :</b> {3}/s
-️ <b>⏰️ ETA :</b> {4}
-"""
+<b>♻️ Bot Made By :</b> @Madflix_Bots"""
 
     DONATE_TXT = """
 <b>🥲 Thanks For Showing Interest In Donation! ❤️</b>
 
 If You Like My Bots & Projects, You Can 🎁 Donate Me Any Amount From 10 Rs Upto Your Choice.
 
-<b>🛍 Message:</b> `@RDX1444`
-"""
+<b>🛍 UPI ID:</b> <code>madflixofficial@axl</code> 
+
+<b>📸 Send Screenshot After Donation To Activate Your Premium Plan </b> """
+
+    ADMIN_TXT = """<b><u>🦋 ADMIN ALL COMMANDS HERE</u></b>
+
+<b>⦿ /users - Use This Command To See Total Users</b>
+<b>⦿ /allids - Use This Command To See All Users IDs</b>
+<b>⦿ /broadcast - Use This Command To Send A Message To Users</b>
+<b>⦿ /warn - Use This Command To Send A Message To A User</b>
+<b>⦿ /resetpower - Use This Command To Reset User Power</b>
+<b>⦿ /ceasepower - Use This Command To Cease User Power</b>
+<b>⦿ /addpremium - Use This Command To Add Premium To Users</b>
+<b>⦿ /restart - Use This Command To Cancel All Process And Restart The Bot</b>"""
 
 
-    SEND_METADATA = """<b><u>🖼️  HOW TO SET CUSTOM METADATA</u></b>
-
-For Example :-
-
-<code>By :- @RDX_PVT_LTD</code>
-
-💬 For Any Help Contact @RDX_PVT_LTD
-"""
 
 
 
 
-
-
-
-## Fixed by @VoidZero_Dev ##
 # Jishu Developer 
 # Don't Remove Credit 🥺
-# Telegram Channel @MadflixBotz
-# Backup Channel @JishuBotz
+# Telegram Channel @Madflix_Bots
 # Developer @JishuDeveloper
-# Contact @MadflixSupport
-## Fixed by @VoidZero_Dev ##
