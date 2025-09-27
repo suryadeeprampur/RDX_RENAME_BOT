@@ -1,32 +1,33 @@
-# Use full Python image with all headers (avoids aiohttp build issues)
-FROM python:3.11
+# Use Debian-based Python image with dev headers
+FROM python:3.11-bullseye
 
 # Set working directory
 WORKDIR /app
 
-# Install system dependencies
+# Install system dependencies for building Python packages
 RUN apt-get update && apt-get install -y \
     build-essential \
     ffmpeg \
     git \
     libffi-dev \
     libssl-dev \
+    python3-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # Upgrade pip, setuptools, wheel
 RUN pip install --upgrade pip setuptools wheel
 
-# Copy requirements file
+# Copy requirements
 COPY requirements.txt .
 
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy all bot files
+# Copy bot files
 COPY . .
 
-# Expose port if using Flask (default Flask port)
+# Expose port if Flask is used
 EXPOSE 5000
 
-# Command to run your bot
+# Run bot
 CMD ["python3", "bot.py"]
