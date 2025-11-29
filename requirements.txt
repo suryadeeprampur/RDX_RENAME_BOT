@@ -1,4 +1,7 @@
+
 urllib3==1.26.16
+requests==2.31.0
+cloudscraper==1.2.68
 Pillow
 humanize
 hachoir
