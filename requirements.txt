@@ -1,3 +1,4 @@
+urllib3==1.26.16
 Pillow
 humanize
 hachoir
