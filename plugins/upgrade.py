@@ -1,25 +1,22 @@
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, ForceReply
-from pyrogram import Client , filters
-
-
-
+from pyrogram import Client, filters
 
 @Client.on_callback_query(filters.regex('upgrade'))
-async def upgrade(bot,update):
+async def upgrade(bot, update):
     text = """**Free Plan User**
-Daily  Upload limit 2GB
+No daily upload limit
 Price 0
 
 **🪙 Basic**
-Daily  Upload  limit 20GB
+No daily upload limit
 Price Rs 49  ind /🌎 0.59$  per Month
 
 **⚡ Standard**
-Daily Upload limit 50GB
+No daily upload limit
 Price Rs 99  ind /🌎 1.19$  per Month
 
 **💎 Pro**
-Daily Upload limit 100GB
+No daily upload limit
 Price Rs 179  ind /🌎 2.16$  per Month
 
 Payment Details :-
@@ -29,31 +26,31 @@ Payment Details :-
 
 After Payment Send Screenshots Of Payment To Admin @MadflixOfficials"""
     
-    keybord = InlineKeyboardMarkup([
-        [InlineKeyboardButton("🦋 Admin", url = "https://t.me/calladminrobot"),
-        InlineKeyboardButton("✖️ Cancel", callback_data="cancel")]
-        ])
+    keyboard = InlineKeyboardMarkup([
+        [InlineKeyboardButton("🦋 Admin", url="https://t.me/calladminrobot"),
+         InlineKeyboardButton("✖️ Cancel", callback_data="cancel")]
+    ])
     
-    await update.message.edit(text = text,reply_markup = keybord, disable_web_page_preview=True)
-    
+    # edit the original message (callback query)
+    await update.message.edit(text=text, reply_markup=keyboard, disable_web_page_preview=True)
     
 
 @Client.on_message(filters.private & filters.command(["upgrade"]))
-async def upgradecm(bot,message):
+async def upgradecm(bot, message):
     text = """**Free Plan User**
-Daily  Upload limit 2GB
+No daily upload limit
 Price 0
 
 **🪙 Basic**
-Daily  Upload  limit 20GB
+No daily upload limit
 Price Rs 49  ind /🌎 0.59$  per Month
 
 **⚡ Standard**
-Daily Upload limit 50GB
+No daily upload limit
 Price Rs 99  ind /🌎 1.19$  per Month
 
 **💎 Pro**
-Daily Upload limit 100GB
+No daily upload limit
 Price Rs 179  ind /🌎 2.16$  per Month
 
 Payment Details :-
@@ -63,14 +60,12 @@ Payment Details :-
 
 After Payment Send Screenshots Of Payment To Admin @MadflixOfficials"""
     
-    keybord = InlineKeyboardMarkup([
-        [InlineKeyboardButton("🦋 Admin", url = "https://t.me/calladminrobot"),
-        InlineKeyboardButton("✖️ Cancel", callback_data="cancel")]
-        ])
+    keyboard = InlineKeyboardMarkup([
+        [InlineKeyboardButton("🦋 Admin", url="https://t.me/calladminrobot"),
+         InlineKeyboardButton("✖️ Cancel", callback_data="cancel")]
+    ])
     
-    await message.reply_text(text=text, reply_markup=keybord, quote=True, disable_web_page_preview=True)
-    
-	
+    await message.reply_text(text=text, reply_markup=keyboard, quote=True, disable_web_page_preview=True)	
     
     
     
