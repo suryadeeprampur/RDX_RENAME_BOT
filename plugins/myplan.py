@@ -1,56 +1,82 @@
-import time
+import time, datetime
 from pyrogram import Client, filters
-from pyrogram.types import (InlineKeyboardButton, InlineKeyboardMarkup)
-from helper.database import find_one, used_limit
-from helper.database import daily as daily_
-import datetime
-from datetime import datetime
-from datetime import date as date_
+from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup
+from helper.database import find_one
 from helper.progress import humanbytes
-from helper.database import daily as daily_
 from helper.date import check_expi
 from helper.database import uploadlimit, usertype
 
 
 @Client.on_message(filters.private & filters.command(["myplan"]))
 async def start(client, message):
-    used_ = find_one(message.from_user.id)
-    daily = used_["daily"]
-    expi = daily - \
-        int(time.mktime(time.strptime(str(date_.today()), '%Y-%m-%d')))
-    if expi != 0:
-        today = date_.today()
-        pattern = '%Y-%m-%d'
-        epcho = int(time.mktime(time.strptime(str(today), pattern)))
-        daily_(message.from_user.id, epcho)
-        used_limit(message.from_user.id, 0)
     _newus = find_one(message.from_user.id)
-    used = _newus["used_limit"]
-    limit = _newus["uploadlimit"]
-    remain = int(limit) - int(used)
-    user = _newus["usertype"]
-    ends = _newus["prexdate"]
+    used = _newus.get("used_limit", 0)
+    limit = int(_newus.get("uploadlimit", 0))  # convention: 0 = Unlimited
+    user = _newus.get("usertype", "Free")
+    ends = _newus.get("prexdate")
+
+    # If subscription expired, downgrade to Free and set default uploadlimit if you want
     if ends:
         pre_check = check_expi(ends)
         if pre_check == False:
-            uploadlimit(message.from_user.id, 2147483652)
+            uploadlimit(message.from_user.id, 2147483652)  # keep this or change to 0 for unlimited
             usertype(message.from_user.id, "Free")
-    if ends == None:
-        text = f"**User ID :** `{message.from_user.id}` \n**Name :** {message.from_user.mention} \n\n**🏷 Plan :** {user} \n\n✓ Upload 2GB Files \n✓ Daily Upload : {humanbytes(limit)} \n✓ Today Used : {humanbytes(used)} \n✓ Remain : {humanbytes(remain)} \n✓ Timeout : 2 Minutes \n✓ Parallel process : Unlimited \n✓ Time Gap : Yes \n\n**Validity :** Lifetime"
+
+    # Prepare readable fields
+    if limit == 0:
+        daily_text = "Unlimited"
+        remain_text = "Unlimited"
     else:
-        normal_date = datetime.fromtimestamp(ends).strftime('%Y-%m-%d')
-        text = f"**User ID :** `{message.from_user.id}` \n**Name :** {message.from_user.mention} \n\n**🏷 Plan :** {user} \n\n✓ High Priority \n✓ Upload 4GB Files \n✓ Daily Upload : {humanbytes(limit)} \n✓ Today Used : {humanbytes(used)} \n✓ Remain : {humanbytes(remain)} \n✓ Timeout : 0 Second \n✓ Parallel process : Unlimited \n✓ Time Gap : Yes \n\n**Your Plan Ends On :** {normal_date}"
+        daily_text = humanbytes(limit)
+        remain = max(0, limit - int(used))
+        remain_text = humanbytes(remain)
+
+    # Build message text — removed the "Daily Upload" limit if unlimited
+    if ends is None:
+        text = (
+            f"<b>User ID :</b> <code>{message.from_user.id}</code> \n"
+            f"<b>Name :</b> {message.from_user.mention} \n\n"
+            f"<b>🏷 Plan :</b> {user} \n\n"
+            f"✓ Upload 2GB Files \n"
+            f"✓ Daily Upload : {daily_text} \n"
+            f"✓ Today Used : {humanbytes(used)} \n"
+            f"✓ Remain : {remain_text} \n"
+            f"✓ Timeout : 2 Minutes \n"
+            f"✓ Parallel process : Unlimited \n"
+            f"✓ Time Gap : Yes \n\n"
+            f"<b>Validity :</b> Lifetime"
+        )
+    else:
+        normal_date = datetime.datetime.fromtimestamp(ends).strftime('%Y-%m-%d')
+        text = (
+            f"<b>User ID :</b> <code>{message.from_user.id}</code> \n"
+            f"<b>Name :</b> {message.from_user.mention} \n\n"
+            f"<b>🏷 Plan :</b> {user} \n\n"
+            f"✓ High Priority \n"
+            f"✓ Upload 4GB Files \n"
+            f"✓ Daily Upload : {daily_text} \n"
+            f"✓ Today Used : {humanbytes(used)} \n"
+            f"✓ Remain : {remain_text} \n"
+            f"✓ Timeout : 0 Second \n"
+            f"✓ Parallel process : Unlimited \n"
+            f"✓ Time Gap : Yes \n\n"
+            f"<b>Your Plan Ends On :</b> {normal_date}"
+        )
 
     if user == "Free":
-        await message.reply(text, quote=True, reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("💳 Upgrade", callback_data="upgrade"), InlineKeyboardButton("✖️ Cancel", callback_data="cancel")]]))
+        await message.reply(
+            text,
+            quote=True,
+            reply_markup=InlineKeyboardMarkup(
+                [[InlineKeyboardButton("💳 Upgrade", callback_data="upgrade"),
+                  InlineKeyboardButton("✖️ Cancel", callback_data="cancel")]]
+            ),
+        )
     else:
-        await message.reply(text, quote=True, reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("✖️ Cancel ✖️", callback_data="cancel")]]))
-
-
-
-
-
-# Jishu Developer 
-# Don't Remove Credit 🥺
-# Telegram Channel @Madflix_Bots
-# Developer @JishuDeveloper
+        await message.reply(
+            text,
+            quote=True,
+            reply_markup=InlineKeyboardMarkup(
+                [[InlineKeyboardButton("✖️ Cancel ✖️", callback_data="cancel")]]
+            ),
+        )
