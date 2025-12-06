@@ -19,7 +19,7 @@ async def start(client, message):
     if ends:
         pre_check = check_expi(ends)
         if pre_check == False:
-            uploadlimit(message.from_user.id, 2147483652)  # keep this or change to 0 for unlimited
+            uploadlimit(message.from_user.id, 0)  # keep this or change to 0 for unlimited
             usertype(message.from_user.id, "Free")
 
     # Prepare readable fields
