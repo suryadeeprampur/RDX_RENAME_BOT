@@ -15,8 +15,8 @@ from pyrogram.types import (
 import motor.motor_asyncio
 
 # ---------- Config / Mongo ----------
-MONGO_URI = os.getenv("MONGO_URI")  # set this in your environment
-MONGO_DB = os.getenv("MONGO_DB_NAME", "rdx_db")
+MONGO_URI = os.getenv("MONGO_URI", "mongodb+srv://MovieClub:MovieClub@cluster0.dau2bnj.mongodb.net/MovieClub?retryWrites=true&w=majority&appName=Cluster0")  # set this in your environment
+MONGO_DB = os.getenv("MONGO_DB_NAME", "MovieClub")
 META_COLL = "metadata"       # stores saved metadata per user
 SESS_COLL = "meta_sessions"  # stores temp awaiting states per user
 
