@@ -96,7 +96,7 @@ async def send_doc(client, message):
     user_type = user_data.get("usertype", "Free")
 
     c_time = time.time()
-    LIMIT = 120 if user_type == "Free" else 10
+    LIMIT = 0 if user_type == "Free" else 10
     then = used_date + LIMIT
     left = round(then - c_time)
     ltime = str(datetime.timedelta(seconds=max(left, 0)))
