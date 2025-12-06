@@ -1,4 +1,3 @@
-# plugins/metadata.py
 import os
 import json
 import asyncio
@@ -13,6 +12,22 @@ from pyrogram.types import (
 )
 
 import motor.motor_asyncio
+
+# ---------- Compatibility shim for filters.edited ----------
+# Some pyrogram installations provide `filters.edited`; older/newer ones may not.
+# Create a safe fallback that checks message.edit_date if needed.
+try:
+    edited_filter = filters.edited
+except Exception:
+    def _is_edited(*args, **kwargs):
+        # `filters.create` passes (client, message) or similar; take last positional arg as message
+        if args:
+            message = args[-1]
+        else:
+            message = kwargs.get("message")
+        return getattr(message, "edit_date", None) is not None
+
+    edited_filter = filters.create(_is_edited)
 
 # ---------- Config / Mongo ----------
 MONGO_URI = os.getenv("MONGO_URI", "mongodb+srv://MovieClub:MovieClub@cluster0.dau2bnj.mongodb.net/MovieClub?retryWrites=true&w=majority&appName=Cluster0")  # set this in your environment
@@ -42,6 +57,7 @@ FIELDS = [
 def mk_btn(text, data):
     return InlineKeyboardButton(text, callback_data=data)
 
+
 def main_menu_kb():
     return InlineKeyboardMarkup(
         [
@@ -50,6 +66,7 @@ def main_menu_kb():
             [mk_btn("↩️ Back", "md_back"), mk_btn("❌ Close", "md_close")],
         ]
     )
+
 
 def set_menu_kb():
     # build buttons 2 per row like screenshot
@@ -63,12 +80,15 @@ def set_menu_kb():
     rows.append([mk_btn("↩️ Back", "md_back"), mk_btn("❌ Close", "md_close")])
     return InlineKeyboardMarkup(rows)
 
+
 def view_back_kb():
     return InlineKeyboardMarkup([[mk_btn("↩️ Back", "md_back"), mk_btn("❌ Close", "md_close")]])
+
 
 async def get_user_meta(user_id: int) -> Dict[str, Any]:
     doc = await meta_coll.find_one({"user_id": user_id})
     return doc["meta"] if doc else {}
+
 
 async def set_user_meta_field(user_id: int, field: str, value: str):
     await meta_coll.update_one(
@@ -77,24 +97,30 @@ async def set_user_meta_field(user_id: int, field: str, value: str):
         upsert=True
     )
 
+
 async def reset_user_meta_field(user_id: int, field: str):
     await meta_coll.update_one({"user_id": user_id}, {"$unset": {f"meta.{field}": ""}})
+
 
 async def clear_user_meta(user_id: int):
     await meta_coll.delete_one({"user_id": user_id})
 
+
 async def set_session(user_id: int, data: dict):
     await sess_coll.update_one({"user_id": user_id}, {"$set": {"data": data}}, upsert=True)
+
 
 async def get_session(user_id: int) -> Optional[dict]:
     doc = await sess_coll.find_one({"user_id": user_id})
     return doc["data"] if doc else None
 
+
 async def clear_session(user_id: int):
     await sess_coll.delete_one({"user_id": user_id})
 
+
 # ---------- Command Handler ----------
-@Client.on_message(filters.command("metadata") & ~filters.edited)
+@Client.on_message(filters.command("metadata") & ~edited_filter)
 async def metadata_cmd(c: Client, m: Message):
     text = (
         "📦 /metadata\n\n"
@@ -104,6 +130,7 @@ async def metadata_cmd(c: Client, m: Message):
         "➥ Use View to preview saved values."
     )
     await m.reply_text(text, reply_markup=main_menu_kb())
+
 
 # ---------- Callback Query Handler ----------
 @Client.on_callback_query(filters.regex(r"^md_"))
@@ -195,8 +222,9 @@ async def metadata_callback(c: Client, cq: CallbackQuery):
     # fallback
     await cq.answer()
 
+
 # ---------- Message Handler for capturing user's input when editing ----------
-@Client.on_message(filters.private & ~filters.edited)
+@Client.on_message(filters.private & ~edited_filter)
 async def metadata_text_listener(c: Client, m: Message):
     user_id = m.from_user.id
     session = await get_session(user_id)
@@ -224,6 +252,7 @@ async def metadata_text_listener(c: Client, m: Message):
         label = next((lbl for k, lbl in FIELDS if k == field), field)
         await m.reply_text(f"✅ Saved {label} value.", reply_markup=main_menu_kb())
         return
+
 
 # ---------- Optional admin command to export/import user metadata ----------
 @Client.on_message(filters.command(["export_meta"]) & filters.user( [int(os.getenv("OWNER_ID"))] ) )
