@@ -22,21 +22,4 @@ PORT = int(os.getenv("PORT", 8080))
 
 
 
-# if you need to add verify system then dm me on telegram
-# Check demo bots
-# https://t.me/FileRenameXBot
-# https://t.me/PremiumRenamerRobot
-# https://t.me/FileRenamerXRobot
-# token verification adding features is paid so if you want then dm me
 
-
-# SHORTNER_URL = os.environ.get("SHORTNER_URL", "")
-# SHORTNER_API = os.environ.get("SHORTNER_API", "")
-# TOKEN_TIMEOUT = os.environ.get("TOKEN_TIMEOUT", "")
-
-
-# Jishu Developer 
-# Don't Remove Credit 🥺
-# Telegram Channel @Madflix_Bots
-# Backup Channel @JishuBotz
-# Developer @JishuDeveloper
