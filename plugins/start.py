@@ -1,3 +1,8 @@
+# rename_bot_handlers_unlimited.py
+# Modified handler: daily upload limit removed (unlimited).
+# Keeps an optional single-file safety check (2 GiB).
+# Handles channel posts safely (won't crash on message.from_user == None).
+
 from datetime import date as date_
 import datetime
 import os, time, asyncio
@@ -6,8 +11,12 @@ from pyrogram.errors.exceptions.bad_request_400 import UserNotParticipant
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 import humanize
 from pyrogram.file_id import FileId
-from helper.database import (insert, find_one, used_limit, usertype,
-                             uploadlimit, addpredata, total_rename, total_size, daily as daily_, botdata)
+
+# Keep imports from your helper module; some functions may be unused but harmless.
+from helper.database import (
+    insert, find_one, used_limit, usertype,
+    uploadlimit, addpredata, total_rename, total_size, daily as daily_, botdata
+)
 from helper.date import check_expi
 from config import *
 
@@ -15,15 +24,22 @@ bot_username = BOT_USERNAME
 log_channel = LOG_CHANNEL
 botid = BOT_TOKEN.split(":")[0]
 
+# single-file safety limit (keep or increase/remove as needed)
+MAX_SINGLE_FILE = 2 * 1024 * 1024 * 1024  # 2 GiB
+
 
 @Client.on_message(filters.private & filters.command(["start"]))
 async def start(client, message):
     user_id = message.chat.id
     insert(int(user_id))  # Ensure user exists in DB
 
-    loading_msg = await message.reply_sticker("CAACAgIAAxkBAALmzGXSSt3ppnOsSl_spnAP8wHC26jpAAJEGQACCOHZSVKp6_XqghKoHgQ")
-    await asyncio.sleep(2)
-    await loading_msg.delete()
+    # optional loading sticker (ignore errors)
+    try:
+        loading_msg = await message.reply_sticker("CAACAgIAAxkBAALmzGXSSt3ppnOsSl_spnAP8wHC26jpAAJEGQACCOHZSVKp6_XqghKoHgQ")
+        await asyncio.sleep(2)
+        await loading_msg.delete()
+    except Exception:
+        pass
 
     txt = f"""Hello {message.from_user.mention} 
 
@@ -50,15 +66,26 @@ async def start(client, message):
 @Client.on_message((filters.private & (filters.document | filters.audio | filters.video)) |
                    (filters.channel & (filters.document | filters.audio | filters.video)))
 async def send_doc(client, message):
-    user_id = message.from_user.id
+    """
+    Handles incoming files (private and channel). Daily upload limit removed (unlimited).
+    Keeps single-file safety check (2 GiB). Flood control default here is 0 seconds (no wait).
+    """
+
+    # Determine a safe user identifier. For channel posts message.from_user may be None.
+    if message.from_user:
+        user_id = message.from_user.id
+    else:
+        # fallback to chat id for channels/groups (safe placeholder)
+        user_id = message.chat.id
+
     update_channel = FORCE_SUBS
 
-    # Check if user joined update channel
-    if update_channel:
+    # If forcing subscription, only check when we have a real user (message.from_user present).
+    if update_channel and message.from_user:
         try:
             await client.get_chat_member(update_channel, user_id)
         except UserNotParticipant:
-            _newus = find_one(user_id)
+            _newus = find_one(user_id) or {}
             user_plan = _newus.get("usertype", "Free")
             await message.reply_text(
                 "<b>Hello Dear \n\nYou Need To Join In My Channel To Use Me\n\nKindly Please Join Channel</b>",
@@ -67,34 +94,47 @@ async def send_doc(client, message):
                     [[InlineKeyboardButton("🔺 Update Channel 🔺", url=f"https://t.me/{update_channel}")]]
                 )
             )
-            await client.send_message(
-                log_channel,
-                f"<b><u>New User Started The Bot</u></b>\n\n"
-                f"<b>User ID</b> : `{user_id}`\n"
-                f"<b>First Name</b> : {message.from_user.first_name}\n"
-                f"<b>Last Name</b> : {message.from_user.last_name}\n"
-                f"<b>User Name</b> : @{message.from_user.username}\n"
-                f"<b>User Mention</b> : {message.from_user.mention}\n"
-                f"<b>User Plan</b> : {user_plan}",
-                reply_markup=InlineKeyboardMarkup(
-                    [[InlineKeyboardButton("🔺 Restrict User (PM) 🔺", callback_data="ceasepower")]]
+            # send admin log (safe attribute access)
+            try:
+                first = message.from_user.first_name if message.from_user else ""
+                last = message.from_user.last_name if message.from_user else ""
+                username = f"@{message.from_user.username}" if (message.from_user and message.from_user.username) else "N/A"
+                mention = message.from_user.mention if message.from_user else "N/A"
+                await client.send_message(
+                    log_channel,
+                    f"<b><u>New User Started The Bot</u></b>\n\n"
+                    f"<b>User ID</b> : `{user_id}`\n"
+                    f"<b>First Name</b> : {first}\n"
+                    f"<b>Last Name</b> : {last}\n"
+                    f"<b>User Name</b> : {username}\n"
+                    f"<b>User Mention</b> : {mention}\n"
+                    f"<b>User Plan</b> : {user_plan}",
+                    reply_markup=InlineKeyboardMarkup(
+                        [[InlineKeyboardButton("🔺 Restrict User (PM) 🔺", callback_data="ceasepower")]]
+                    )
                 )
-            )
+            except Exception:
+                pass
             return
 
-    # Bot stats
-    botdata(int(botid))
-    bot_info = find_one(int(botid))
+    # Update bot stats (non-blocking)
+    try:
+        botdata(int(botid))
+    except Exception:
+        pass
+
+    bot_info = find_one(int(botid)) or {}
     prrename = bot_info.get('total_rename', 0)
     prsize = bot_info.get('total_size', 0)
 
-    # User stats (with safe defaults)
-    user_data = find_one(user_id)
+    # Load user data safely (avoid None)
+    user_data = find_one(user_id) or {}
     used_date = user_data.get("date", 0)
     buy_date = user_data.get("prexdate", None)
     daily = user_data.get("daily", 0)
     user_type = user_data.get("usertype", "Free")
 
+    # Flood control effectively off (LIMIT = 0 for Free)
     c_time = time.time()
     LIMIT = 0 if user_type == "Free" else 10
     then = used_date + LIMIT
@@ -111,45 +151,39 @@ async def send_doc(client, message):
     # Process file
     media = await client.get_messages(message.chat.id, message.id)
     file = media.document or media.video or media.audio
-    dcid = FileId.decode(file.file_id).dc_id
-    filename = file.file_name
-    file_size = file.file_size
+    if not file:
+        await message.reply_text("No file found.", reply_to_message_id=message.id)
+        return
+
+    try:
+        dcid = FileId.decode(file.file_id).dc_id
+    except Exception:
+        dcid = "N/A"
+
+    filename = getattr(file, "file_name", "unknown")
+    file_size = getattr(file, "file_size", 0)
     file_id = file.file_id
 
-    # Daily limit handling
-    user_used = user_data.get("used_limit", 0)
-    user_limit = user_data.get("uploadlimit", 2147483648)
-    today_epoch = int(time.mktime(time.strptime(str(date_.today()), '%Y-%m-%d')))
-    expi = daily - today_epoch
+    # --- DAILY QUOTA REMOVED ---
+    # Previously you had per-day quota checks here. Those are removed so uploads are unlimited per day.
+    # If other handlers expect uploadlimit/used_limit/daily, ensure they handle missing values gracefully.
 
-    if expi != 0:
-        daily_(user_id, today_epoch)
-        used_limit(user_id, 0)
-
-    remain = user_limit - user_used
-    if remain < file_size:
+    # Optional single-file safety check (kept)
+    if file_size > MAX_SINGLE_FILE:
         await message.reply_text(
-            f"100% Of Daily {humanize.naturalsize(user_limit)} Data Quota Exhausted.\n\n"
-            f"<b>File Size Detected :</b> {humanize.naturalsize(file_size)}\n"
-            f"<b>Used Daily Limit :</b> {humanize.naturalsize(user_used)}\n\n"
-            f"You Have Only <b>{humanize.naturalsize(remain)}</b> Left.\n\n"
-            f"If You Want To Rename Large File Upgrade Your Plan",
-            reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("💳 Upgrade", callback_data="upgrade")]])
+            "You Can't Upload More Than 2GB File.\nAdjust server/storage limits if you need larger files.",
+            reply_to_message_id=message.id
         )
         return
 
-    # File size check > 2GB
-    if file_size > 2147483648:
-        await message.reply_text(
-            "You Can't Upload More Than 2GB File\nUpgrade Your Plan To Rename Files Larger Than 2GB"
-        )
-        return
+    # Update stats (non-blocking)
+    try:
+        total_rename(int(botid), prrename)
+        total_size(int(botid), prsize, file_size)
+    except Exception:
+        pass
 
-    # Update stats
-    total_rename(int(botid), prrename)
-    total_size(int(botid), prsize, file_size)
-
-    # Reply with options
+    # Reply with options (no "Upgrade" button or message anywhere)
     await message.reply_text(
         f"__What Do You Want Me To Do With This File?__\n\n"
         f"**File Name** :- `{filename}`\n"
