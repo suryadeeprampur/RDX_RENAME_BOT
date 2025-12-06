@@ -43,7 +43,7 @@ async def start(client, message):
             f"✓ Remain : {remain_text} \n"
             f"✓ Timeout : 2 Minutes \n"
             f"✓ Parallel process : Unlimited \n"
-            f"✓ Time Gap : Yes \n\n"
+            f"✓ Time Gap : No \n\n"
             f"<b>Validity :</b> Lifetime"
         )
     else:
@@ -59,7 +59,7 @@ async def start(client, message):
             f"✓ Remain : {remain_text} \n"
             f"✓ Timeout : 0 Second \n"
             f"✓ Parallel process : Unlimited \n"
-            f"✓ Time Gap : Yes \n\n"
+            f"✓ Time Gap : No \n\n"
             f"<b>Your Plan Ends On :</b> {normal_date}"
         )
 
